@@ -7,7 +7,7 @@ This tool supports:
 - Statistical enrichment analysis.
 - A cache to store previoulsy computed genomic regions.
 
-### C code: Red-black interval trees in C
+### C code: Red-black interval trees
 
 We modified the "prb" implementation of red-black trees in the GNU libavl package so it supports interval tree operations.
  
