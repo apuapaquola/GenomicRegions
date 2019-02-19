@@ -1,0 +1,8 @@
+bedcoverage
+bedcoverage.o
+intersectbed
+intersectbed.o
+libprb.a
+merge_intervals_judy
+merge_intervals_judy.o
+prb.o

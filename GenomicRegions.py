@@ -13,11 +13,12 @@ from scipy.stats import binom
 
 class GenomicRegions:
     def __init__(self):
-        self.cache_dir = '/pool/tmp/GenomicRegions/cache'
-        self.tmp_dir = '/pool/tmp/GenomicRegions/tmp'
-        self.con = sqlite3.connect('/pool/tmp/GenomicRegions/GenomicRegions.sqlite', timeout=3600)
+        self.base_dir = '/ceph/users/apua/tests/genomicregions/GenomicRegions'
+        self.cache_dir = self.base_dir + '/cache'
+        self.tmp_dir = self.base_dir + '/tmp'
+        self.con = sqlite3.connect(self.base_dir + '/GenomicRegions.sqlite', timeout=3600)
         #self.con.isolation_level = 'EXCLUSIVE'
-        self.bin_dir = '/pool/code/python/eplibng/GenomicRegions/red_black_interval_tree'
+        self.bin_dir = '/ceph/opt/GenomicRegions/red_black_interval_tree'
 
         
     def init_db(self):
@@ -103,13 +104,13 @@ class GenomicRegions:
                 subprocess.check_call(self.bin_dir + '/intersectbed region.bed ' + parentbed + ' > output.bed', shell=True)
 
 
-            assert(os.path.realpath(bedfile).startswith('/pool/tmp/GenomicRegions/cache/'))
+            assert(os.path.realpath(bedfile).startswith(self.base_dir + '/cache/'))
             os.renames('output.bed', bedfile)
         finally:
             #print(construction)
 
             os.chdir(olddir)
-            assert(os.path.realpath(tmpdir).startswith('/pool/tmp/GenomicRegions/tmp/'))
+            assert(os.path.realpath(tmpdir).startswith(self.base_dir + '/tmp/'))
             shutil.rmtree(tmpdir)
 
 
@@ -184,7 +185,7 @@ class GenomicRegions:
 def test0():
     gr = GenomicRegions()
     gr.init_db()
-    print(gr.add_genomic_region('hg19', None, '''perl -pe 's/\t/\t0\t/' /pool/genome/hg19/chromsizes/_/hg19.headless.genome > region.bed'''))
+    print(gr.add_genomic_region('hg19', None, '''cut -f 1,2 /ceph/genome/human/hg19/_m/hg19.fa.fai | perl -pe 's/\t/\t0\t/' > region.bed'''))
     print(gr.add_genomic_region('chr1_10_1000', 'hg19', 'echo "chr1\t10\t1000" > region.bed'))
     print(gr.add_genomic_region('chr1_1_222', 'hg19', 'echo "chr1\t1\t222" > region.bed'))
     print(gr.add_genomic_region('chr1_10_1000', 'hg19%chr1_1_222', '%intersect hg19%chr1_10_1000'))
@@ -198,27 +199,15 @@ def test0():
     r = gr.point_statistics('hg19', 'chr1_1_222', 'points')
     print(r)
 
-    
 
-    
 def test1():
     gr = GenomicRegions()
     gr.init_db()
-
-    print(gr.add_genomic_region('a75', None, '''cp /home/apua/lixo/genomic_region_test/a75.bed region.bed'''))
-    print(gr.add_genomic_region('l1', None, '''cp /home/apua/lixo/genomic_region_test/l1.bed region.bed'''))
-    print(gr.add_genomic_region('lc_l1_knrgl', None, '''cp /home/apua/lixo/genomic_region_test/lc_l1_knrgl.bed region.bed'''))
-    print(gr.intersect('a75', 'l1'))
-    print(gr.intersect('a75', 'lc_l1_knrgl'))
-    print(gr.intersect('a75%l1', 'lc_l1_knrgl'))
-    r = gr.point_statistics('a75', 'a75%l1', 'lc_l1_knrgl')
-    print(r)
-
-def test2():
-    gr = GenomicRegions()
-    gr.init_db()
-    print(gr.add_genomic_region('a75', None, '''cp /home/apua/lixo/genomic_region_test/a75.bed region.bed'''))
+    print(gr.add_genomic_region('hg19', None, '''cut -f 1,2 /ceph/genome/human/hg19/_m/hg19.fa.fai | perl -pe 's/\t/\t0\t/' > region.bed'''))
+    print(gr.add_genomic_region('a75', None, '''cp /ceph/users/apua/tests/genomicregions/a75/a75.bed region.bed'''))
+    print(gr.intersect('hg19', 'a75'))
+    
 
 if __name__ == '__main__':
-    test2()
+    test1()
 
